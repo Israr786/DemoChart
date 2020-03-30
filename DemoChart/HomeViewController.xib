@@ -8,12 +8,12 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="HomeViewController" customModule="ChartsTutorial" customModuleProvider="target">
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="HomeViewController" customModule="DemoChart" customModuleProvider="target">
             <connections>
                 <outlet property="barChart" destination="B0A-Gz-caw" id="P5j-5i-nsf"/>
                 <outlet property="cameraImageView" destination="1bd-4f-ypD" id="0oy-54-xAK"/>
                 <outlet property="pieChart" destination="tod-9H-gjF" id="Ixn-fl-WiS"/>
-                <outlet property="progressView" destination="EpI-Rm-Ti5" id="tBF-Nu-M8o"/>
+                <outlet property="slider" destination="tHA-WS-djH" id="E8F-2O-Ucc"/>
                 <outlet property="stepper" destination="tRf-6B-P4S" id="8Wt-iz-oeR"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
@@ -53,33 +53,38 @@
                     </constraints>
                     <state key="normal" title="Capture"/>
                     <connections>
-                        <action selector="takePhotoWithSender:" destination="-1" eventType="touchDragInside" id="BEG-e7-Wwe"/>
+                        <action selector="takePhotoWithSender:" destination="-1" eventType="touchUpInside" id="cat-mu-LjB"/>
                     </connections>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oIa-xC-cH9">
                     <rect key="frame" x="883" y="518" width="55" height="30"/>
                     <state key="normal" title="Cancel"/>
+                    <connections>
+                        <action selector="cancelPhotoWithSender:" destination="-1" eventType="touchUpInside" id="KWA-3q-I89"/>
+                    </connections>
                 </button>
                 <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" maximumValue="100" translatesAutoresizingMaskIntoConstraints="NO" id="tRf-6B-P4S">
-                    <rect key="frame" x="149" y="558" width="94" height="32"/>
+                    <rect key="frame" x="148.5" y="528" width="95" height="32"/>
                     <connections>
                         <action selector="updatePlayer:" destination="-1" eventType="valueChanged" id="wPs-0W-Lm6"/>
                     </connections>
                 </stepper>
-                <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="EpI-Rm-Ti5">
-                    <rect key="frame" x="461.5" y="573" width="150" height="2"/>
+                <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="6" minValue="0.0" maxValue="10" translatesAutoresizingMaskIntoConstraints="NO" id="tHA-WS-djH">
+                    <rect key="frame" x="477.5" y="530" width="118" height="31"/>
                     <constraints>
-                        <constraint firstAttribute="width" constant="150" id="evx-E5-vke"/>
+                        <constraint firstAttribute="width" constant="114" id="jfP-c3-eXj"/>
                     </constraints>
-                </progressView>
+                    <connections>
+                        <action selector="updatePlayerForBarChart:" destination="-1" eventType="valueChanged" id="K8z-8N-ObG"/>
+                    </connections>
+                </slider>
             </subviews>
             <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
             <constraints>
-                <constraint firstItem="EpI-Rm-Ti5" firstAttribute="centerX" secondItem="B0A-Gz-caw" secondAttribute="centerX" id="7je-HE-1dV"/>
                 <constraint firstItem="Ivo-xX-o0k" firstAttribute="top" secondItem="1bd-4f-ypD" secondAttribute="bottom" constant="61" id="8Hj-P7-T8X"/>
-                <constraint firstItem="tRf-6B-P4S" firstAttribute="top" secondItem="tod-9H-gjF" secondAttribute="bottom" constant="113" id="9Oe-SK-uqK"/>
-                <constraint firstItem="EpI-Rm-Ti5" firstAttribute="top" secondItem="B0A-Gz-caw" secondAttribute="bottom" constant="128" id="AdT-DC-pcg"/>
+                <constraint firstItem="tRf-6B-P4S" firstAttribute="top" secondItem="tod-9H-gjF" secondAttribute="bottom" constant="83" id="9Oe-SK-uqK"/>
                 <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="1bd-4f-ypD" secondAttribute="trailing" constant="46" id="GRL-sy-VyD"/>
+                <constraint firstItem="tHA-WS-djH" firstAttribute="centerX" secondItem="B0A-Gz-caw" secondAttribute="centerX" id="K2F-dP-MSB"/>
                 <constraint firstItem="1bd-4f-ypD" firstAttribute="bottom" secondItem="B0A-Gz-caw" secondAttribute="bottom" id="OdD-81-SCA"/>
                 <constraint firstItem="B0A-Gz-caw" firstAttribute="top" secondItem="tod-9H-gjF" secondAttribute="top" id="WLb-dk-TOu"/>
                 <constraint firstItem="oIa-xC-cH9" firstAttribute="leading" secondItem="Ivo-xX-o0k" secondAttribute="trailing" constant="81" id="WiN-wX-9v0"/>
@@ -87,8 +92,10 @@
                 <constraint firstItem="tod-9H-gjF" firstAttribute="top" secondItem="fnl-2z-Ty3" secondAttribute="top" constant="145" id="cqy-BG-h9z"/>
                 <constraint firstItem="1bd-4f-ypD" firstAttribute="leading" secondItem="B0A-Gz-caw" secondAttribute="trailing" constant="37" id="jJz-Ic-O4S"/>
                 <constraint firstItem="oIa-xC-cH9" firstAttribute="top" secondItem="1bd-4f-ypD" secondAttribute="bottom" constant="73" id="jf3-b9-b7G"/>
+                <constraint firstItem="tHA-WS-djH" firstAttribute="leading" secondItem="tRf-6B-P4S" secondAttribute="trailing" constant="236" id="nvp-wl-oGn"/>
                 <constraint firstItem="tRf-6B-P4S" firstAttribute="centerX" secondItem="tod-9H-gjF" secondAttribute="centerX" id="ofx-jG-vpl"/>
                 <constraint firstItem="tod-9H-gjF" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" constant="56" id="tde-FG-oRE"/>
+                <constraint firstItem="tHA-WS-djH" firstAttribute="top" secondItem="B0A-Gz-caw" secondAttribute="bottom" constant="85" id="u9e-7n-bJU"/>
                 <constraint firstItem="Ivo-xX-o0k" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" constant="747" id="yPn-8k-Gz9"/>
                 <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="oIa-xC-cH9" secondAttribute="trailing" constant="86" id="zGG-9t-QI1"/>
                 <constraint firstItem="1bd-4f-ypD" firstAttribute="top" secondItem="B0A-Gz-caw" secondAttribute="top" id="zhV-4o-mPE"/>

@@ -14,19 +14,29 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     @IBOutlet weak var pieChart: PieChartView!
     @IBOutlet weak var stepper: UIStepper!
     
-    @IBOutlet weak var progressView: UIProgressView!
+    @IBOutlet weak var slider: UISlider!
     @IBOutlet weak var cameraImageView: UIImageView!
     var players = [String]()
     var goals = [Int]()
     var stepperValue = 0
     var imagePicker: UIImagePickerController!
+    var barCHart: BarChartHelper?
+    var pieCHart: PieChartHelper?
+    var cameraHelper: CameraHelper?
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         fetchData()
         setupSetpper()
-        customizeBarChart(dataPoints: players, values: goals.map{ Double($0) })
-        setDataForBarChart()
+        barCHart = BarChartHelper(barchart: barChart, players: players, goals: goals)
+        pieCHart = PieChartHelper(piechart: pieChart, players: players, goals: goals)
+        cameraHelper = CameraHelper(imagePicker: imagePicker, cameraImageView: cameraImageView)
+        barCHart?.setChart(dataPoints: players, values: goals.map { Double($0) })
+        pieCHart?.customizeBarChart(dataPoints: players, values: goals.map{ Double($0) })
+        barCHart?.delegate = self
+        pieCHart?.delegate = self
+        cameraHelper?.delegate = self
     }
     
     func setupSetpper() {
@@ -34,6 +44,7 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         stepper.autorepeat = true;
         stepper.minimumValue = 5;
         stepper.value = Double(players.count)
+        slider.value = Float(players.count)
         stepper.maximumValue = 10;
         stepper.stepValue = 1;
     }
@@ -46,113 +57,58 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
             goals.append(item.goal)
         }
     }
-    
-    
-    func customizeBarChart(dataPoints: [String], values: [Double]) {
-       
-       var dataEntries: [ChartDataEntry] = []
-       for i in 0..<dataPoints.count {
-         let dataEntry = PieChartDataEntry(value: values[i], label: dataPoints[i], data:  dataPoints[i] as AnyObject)
-         dataEntries.append(dataEntry)
-       }
-       
-       let pieChartDataSet = PieChartDataSet(values: dataEntries, label: nil)
-       pieChartDataSet.colors = colorsOfCharts(numbersOfColor: dataPoints.count)
-       
-       let pieChartData = PieChartData(dataSet: pieChartDataSet)
-       let format = NumberFormatter()
-       format.numberStyle = .none
-       let formatter = DefaultValueFormatter(formatter: format)
-       pieChartData.setValueFormatter(formatter)
-       
-       pieChart.data = pieChartData
-     }
-    
-     private func colorsOfCharts(numbersOfColor: Int) -> [UIColor] {
-       var colors: [UIColor] = []
-       for _ in 0..<numbersOfColor {
-         let red = Double(arc4random_uniform(256))
-         let green = Double(arc4random_uniform(256))
-         let blue = Double(arc4random_uniform(256))
-         let color = UIColor(red: CGFloat(red/255), green: CGFloat(green/255), blue: CGFloat(blue/255), alpha: 1)
-         colors.append(color)
-       }
-       return colors
-     }
-    
-    private func setChart(dataPoints: [String], values: [Double]) {
-       
-       var dataEntries: [BarChartDataEntry] = []
-       
-       for i in 0..<dataPoints.count {
-         let dataEntry = BarChartDataEntry(x: Double(i), y: Double(values[i]))
-         dataEntries.append(dataEntry)
-       }
-       
-       let chartDataSet = BarChartDataSet(values: dataEntries, label: "Bar Chart View")
-       let chartData = BarChartData(dataSet: chartDataSet)
-       barChart.data = chartData
-     }
-    
-    private func setDataForBarChart() {
-        barChart.animate(yAxisDuration: 2.0)
-        barChart.pinchZoomEnabled = false
-        barChart.drawBarShadowEnabled = false
-        barChart.drawBordersEnabled = false
-        barChart.doubleTapToZoomEnabled = false
-        barChart.drawGridBackgroundEnabled = true
-        barChart.chartDescription?.text = "Bar Chart View"
-        setChart(dataPoints: players, values: goals.map { Double($0) })
-    }
 }
 
 extension HomeViewController: UIImagePickerControllerDelegate {
     @IBAction func takePhoto(sender: Any) {
-       if UIImagePickerController.isSourceTypeAvailable(.camera) { 
-            imagePicker =  UIImagePickerController()
-            imagePicker.delegate = self
-            imagePicker.sourceType = .camera
-            imagePicker.allowsEditing = true
-            present(imagePicker, animated: true, completion: nil)
-        }
+        cameraHelper?.delegate?.camera(navController: self)
     }
     
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        
-        var image : UIImage!
-
-        if let img = info[UIImagePickerController.InfoKey.editedImage] as? UIImage
-        {
-            image = img
-        }
-        else if let img = info[UIImagePickerController.InfoKey.originalImage] as? UIImage
-        {
-            image = img
-        }
-        imagePicker.dismiss(animated: true, completion: nil)
-        cameraImageView.image = image
+    @IBAction func cancelPhoto(sender: Any) {
+        cameraImageView.image = UIImage(named: "placeHolder")
     }
 }
 
-extension HomeViewController{
+extension HomeViewController {
     @IBAction func updatePlayer(_ sender: UIStepper) {
-      
-        if Int(sender.value) >= players.count {
-            let customPlayerName = "Messi"
-            let goal = 9
-            players.append(customPlayerName)
-            goals.append(goal)
-            customizeBarChart(dataPoints: players, values: goals.map{ Double($0) })
-            pieChart.setNeedsDisplay()
-        } else  {
-            players.removeFirst()
-            goals.removeFirst()
-            customizeBarChart(dataPoints: players, values: goals.map{ Double($0) })
-            pieChart.setNeedsDisplay()
-        }
+        updateDataOnValueChanged(chnagedValue: Int(sender.value))
+        pieCHart?.delegate?.updateValueForPieChart(players: players, goals: goals)
     }
     
-    @IBAction func updatePlayerForBarChart(_ sender: Any) {
-     //To be Completed
+    @IBAction func updatePlayerForBarChart(_ sender: UISlider) {
+        updateDataOnValueChanged(chnagedValue: Int(sender.value))
+        barCHart?.delegate?.updateValueForBarChart(players: players, goals: goals)
+    }
+    
+    private func updateDataOnValueChanged(chnagedValue: Int) {
+        if Int(chnagedValue) >= players.count {
+                   let customPlayerName = "Messi"
+                   let goal = Int(arc4random())/100000000
+                   players.append(customPlayerName)
+                   goals.append(goal)
+               } else if players.count == 0 {
+                   fetchData()
+               } else {
+                   players.removeFirst()
+                   goals.removeFirst()
+               }
+    }
+}
+
+extension HomeViewController: BarChartProtocol {
+    func updateValueForBarChart(players: [String], goals: [Int]) {
+        barCHart?.setChart(dataPoints: players, values: goals.map { Double($0) })
+    }
+}
+
+extension HomeViewController: PieChartProtocol {
+    func updateValueForPieChart(players: [String], goals: [Int]) {
+        pieCHart?.customizeBarChart(dataPoints: players, values: goals.map { Double($0) })
+    }
+}
+
+extension HomeViewController: CameraHelperProtocol {
+    func camera(navController: UIViewController) {
+        cameraHelper?.setupCamera(navController: navController)
     }
 }
